@@ -1,0 +1,1385 @@
+This file is a merged representation of a subset of the codebase, containing files not matching ignore patterns, combined into a single document by Repomix.
+
+<file_summary>
+This section contains a summary of this file.
+
+<purpose>
+This file contains a packed representation of a subset of the repository's contents that is considered the most important context.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+</purpose>
+
+<file_format>
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Repository files (if enabled)
+5. Multiple file entries, each consisting of:
+  - File path as an attribute
+  - Full contents of the file
+</file_format>
+
+<usage_guidelines>
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+</usage_guidelines>
+
+<notes>
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Files matching these patterns are excluded: node_modules, .next, package-lock.json, __pycache__, .DS_Store
+- Files matching patterns in .gitignore are excluded
+- Files matching default ignore patterns are excluded
+- Files are sorted by Git change count (files with more changes are at the bottom)
+</notes>
+
+</file_summary>
+
+<directory_structure>
+frontend/
+  app/
+    favicon.ico
+    globals.css
+    layout.tsx
+    page.tsx
+  components/
+    InputPanel.tsx
+    OutputPanel.tsx
+  lib/
+    api.ts
+  public/
+    file.svg
+    globe.svg
+    next.svg
+    vercel.svg
+    window.svg
+  .gitignore
+  AGENTS.md
+  CLAUDE.md
+  eslint.config.mjs
+  next.config.ts
+  package.json
+  postcss.config.js
+  postcss.config.mjs
+  tailwind.config.js
+  tsconfig.json
+  types.ts
+main.py
+README.md
+requirements.txt
+</directory_structure>
+
+<files>
+This section contains the contents of the repository's files.
+
+<file path="frontend/components/InputPanel.tsx">
+"use client";
+
+import { useState } from "react";
+import type { PropertyInput } from "@/types";
+
+// ──────────────────────────────────────────────────────────────
+// Input field configuration — drives the form rendering
+// ──────────────────────────────────────────────────────────────
+interface FieldConfig {
+  key: keyof PropertyInput;
+  label: string;
+  prefix: string;
+  suffix: string;
+  step: number;
+  min: number;
+  placeholder: string;
+}
+
+const FIELDS: FieldConfig[] = [
+  {
+    key: "purchase_price",
+    label: "Purchase Price",
+    prefix: "$",
+    suffix: "",
+    step: 5000,
+    min: 0,
+    placeholder: "300000",
+  },
+  {
+    key: "down_payment_percent",
+    label: "Down Payment",
+    prefix: "",
+    suffix: "%",
+    step: 0.5,
+    min: 0,
+    placeholder: "20",
+  },
+  {
+    key: "interest_rate",
+    label: "Interest Rate",
+    prefix: "",
+    suffix: "%",
+    step: 0.125,
+    min: 0,
+    placeholder: "6.5",
+  },
+  {
+    key: "gross_monthly_rent",
+    label: "Gross Monthly Rent",
+    prefix: "$",
+    suffix: "",
+    step: 50,
+    min: 0,
+    placeholder: "2500",
+  },
+  {
+    key: "monthly_operating_expenses",
+    label: "Monthly Operating Expenses",
+    prefix: "$",
+    suffix: "",
+    step: 25,
+    min: 0,
+    placeholder: "800",
+  },
+];
+
+// ──────────────────────────────────────────────────────────────
+// Component Props
+// ──────────────────────────────────────────────────────────────
+interface InputPanelProps {
+  values: PropertyInput;
+  onChange: (field: keyof PropertyInput, value: number) => void;
+  onSubmit: () => void;
+  isLoading: boolean;
+}
+
+// ──────────────────────────────────────────────────────────────
+// InputPanel Component
+// ──────────────────────────────────────────────────────────────
+export function InputPanel({
+  values,
+  onChange,
+  onSubmit,
+  isLoading,
+}: InputPanelProps) {
+  const [focusedField, setFocusedField] = useState<keyof PropertyInput | null>(
+    null
+  );
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    onSubmit();
+  };
+
+  return (
+    <div className="glass-card rounded-2xl p-6 lg:p-8 h-full flex flex-col">
+      {/* Panel Header */}
+      <div className="flex items-center gap-3 mb-6">
+        <div className="w-2.5 h-2.5 rounded-full bg-dex-cyan animate-pulse-glow" />
+        <h2 className="text-sm font-mono font-semibold tracking-widest uppercase text-dex-tx2">
+          Property Assumptions
+        </h2>
+      </div>
+
+      {/* Form */}
+      <form onSubmit={handleSubmit} className="flex flex-col flex-1 gap-5">
+        {FIELDS.map((field) => (
+          <div key={field.key} className="group">
+            <label
+              htmlFor={field.key}
+              className="block text-xs font-medium text-dex-tx2 mb-1.5 tracking-wide uppercase"
+            >
+              {field.label}
+            </label>
+            <div
+              className={`relative flex items-center rounded-xl border transition-all duration-200 ${
+                focusedField === field.key
+                  ? "border-dex-cyan shadow-[0_0_0_2px_rgba(56,189,248,0.15)]"
+                  : "border-dex-border hover:border-dex-tx3"
+              } bg-dex-bg/60`}
+            >
+              {/* Prefix */}
+              {field.prefix && (
+                <span className="pl-4 text-dex-tx3 font-mono text-sm select-none">
+                  {field.prefix}
+                </span>
+              )}
+
+              <input
+                id={field.key}
+                name={field.key}
+                type="number"
+                step={field.step}
+                min={field.min}
+                placeholder={field.placeholder}
+                value={values[field.key]}
+                onChange={(e) =>
+                  onChange(field.key, parseFloat(e.target.value) || 0)
+                }
+                onFocus={() => setFocusedField(field.key)}
+                onBlur={() => setFocusedField(null)}
+                className="flex-1 bg-transparent px-3 py-3 text-sm font-mono text-dex-tx placeholder:text-dex-tx3/50 focus:outline-none w-full"
+              />
+
+              {/* Suffix */}
+              {field.suffix && (
+                <span className="pr-4 text-dex-tx3 font-mono text-sm select-none">
+                  {field.suffix}
+                </span>
+              )}
+            </div>
+          </div>
+        ))}
+
+        {/* Submit Button */}
+        <div className="mt-auto pt-4">
+          <button
+            type="submit"
+            disabled={isLoading}
+            className={`w-full py-3.5 rounded-xl font-semibold text-sm tracking-wider uppercase transition-all duration-300 cursor-pointer ${
+              isLoading
+                ? "bg-dex-border text-dex-tx3 cursor-not-allowed"
+                : "bg-gradient-to-r from-dex-cyan to-dex-indigo text-white hover:shadow-[0_0_24px_rgba(56,189,248,0.4)] hover:scale-[1.02] active:scale-[0.98]"
+            }`}
+          >
+            {isLoading ? (
+              <span className="flex items-center justify-center gap-2">
+                <svg
+                  className="animate-spin h-4 w-4"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  />
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                  />
+                </svg>
+                Calculating…
+              </span>
+            ) : (
+              "Calculate Cashflow"
+            )}
+          </button>
+        </div>
+      </form>
+    </div>
+  );
+}
+</file>
+
+<file path="frontend/components/OutputPanel.tsx">
+"use client";
+
+import type { CashflowResult } from "@/types";
+
+// ──────────────────────────────────────────────────────────────
+// Formatting helpers
+// ──────────────────────────────────────────────────────────────
+function formatCurrency(value: number): string {
+  const absValue = Math.abs(value);
+  const formatted = new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(absValue);
+  return value < 0 ? `-${formatted}` : formatted;
+}
+
+function formatPercent(value: number): string {
+  return `${value.toFixed(2)}%`;
+}
+
+// ──────────────────────────────────────────────────────────────
+// Metric card config
+// ──────────────────────────────────────────────────────────────
+interface MetricCardConfig {
+  key: keyof CashflowResult;
+  label: string;
+  format: "currency" | "percent";
+  isHero: boolean;
+  icon: string;
+}
+
+const METRIC_CARDS: MetricCardConfig[] = [
+  {
+    key: "cap_rate",
+    label: "Cap Rate",
+    format: "percent",
+    isHero: true,
+    icon: "◎",
+  },
+  {
+    key: "cash_on_cash_return",
+    label: "Cash-on-Cash Return",
+    format: "percent",
+    isHero: true,
+    icon: "⟐",
+  },
+  {
+    key: "monthly_cashflow",
+    label: "Monthly Cashflow",
+    format: "currency",
+    isHero: false,
+    icon: "↗",
+  },
+  {
+    key: "net_operating_income_annual",
+    label: "Net Operating Income (Annual)",
+    format: "currency",
+    isHero: false,
+    icon: "Σ",
+  },
+  {
+    key: "monthly_mortgage_payment",
+    label: "Monthly Mortgage Payment",
+    format: "currency",
+    isHero: false,
+    icon: "⌂",
+  },
+];
+
+// ──────────────────────────────────────────────────────────────
+// Component Props
+// ──────────────────────────────────────────────────────────────
+interface OutputPanelProps {
+  result: CashflowResult | null;
+  isLoading: boolean;
+  error: string | null;
+}
+
+// ──────────────────────────────────────────────────────────────
+// Skeleton Placeholder
+// ──────────────────────────────────────────────────────────────
+function SkeletonCard({ isHero }: { isHero: boolean }) {
+  return (
+    <div
+      className={`glass-card rounded-2xl p-6 ${
+        isHero ? "lg:col-span-1" : ""
+      }`}
+    >
+      <div className="skeleton h-3 w-24 mb-4" />
+      <div className={`skeleton ${isHero ? "h-10 w-36" : "h-8 w-28"} mb-2`} />
+      <div className="skeleton h-3 w-16" />
+    </div>
+  );
+}
+
+// ──────────────────────────────────────────────────────────────
+// Empty State
+// ──────────────────────────────────────────────────────────────
+function EmptyState() {
+  return (
+    <div className="glass-card rounded-2xl p-12 flex flex-col items-center justify-center text-center col-span-full min-h-[320px]">
+      <div className="text-5xl mb-4 opacity-30">📊</div>
+      <h3 className="text-lg font-semibold text-dex-tx2 mb-2">
+        No Results Yet
+      </h3>
+      <p className="text-sm text-dex-tx3 max-w-sm">
+        Enter your property assumptions on the left and click{" "}
+        <span className="text-dex-cyan font-medium">Calculate Cashflow</span>{" "}
+        to generate your financial analysis.
+      </p>
+    </div>
+  );
+}
+
+// ──────────────────────────────────────────────────────────────
+// Error State
+// ──────────────────────────────────────────────────────────────
+function ErrorState({ message }: { message: string }) {
+  return (
+    <div className="glass-card rounded-2xl p-8 border-loss/30 col-span-full animate-slide-in">
+      <div className="flex items-start gap-3">
+        <div className="text-2xl">⚠️</div>
+        <div>
+          <h3 className="text-sm font-semibold text-loss mb-1 uppercase tracking-wide">
+            Calculation Error
+          </h3>
+          <p className="text-sm text-dex-tx2 leading-relaxed">{message}</p>
+          <p className="text-xs text-dex-tx3 mt-2">
+            Ensure the backend is running on port 8000 and try again.
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ──────────────────────────────────────────────────────────────
+// MetricCard
+// ──────────────────────────────────────────────────────────────
+function MetricCard({
+  config,
+  value,
+  delay,
+}: {
+  config: MetricCardConfig;
+  value: number;
+  delay: number;
+}) {
+  const formattedValue =
+    config.format === "currency" ? formatCurrency(value) : formatPercent(value);
+
+  // Determine coloring: mortgage is always neutral, others are green/red based on sign
+  const isMortgage = config.key === "monthly_mortgage_payment";
+  const isPositive = value >= 0;
+  const valueColor = isMortgage
+    ? "text-dex-tx"
+    : isPositive
+    ? "text-profit"
+    : "text-loss";
+  const glowClass = isMortgage
+    ? ""
+    : isPositive
+    ? "glow-profit"
+    : "glow-loss";
+
+  return (
+    <div
+      className={`glass-card rounded-2xl p-6 animate-slide-in opacity-0 ${
+        config.isHero
+          ? `${glowClass} border-opacity-20`
+          : ""
+      }`}
+      style={{ animationDelay: `${delay * 0.08}s` }}
+    >
+      {/* Label */}
+      <div className="flex items-center gap-2 mb-3">
+        <span className="text-base opacity-50">{config.icon}</span>
+        <span className="text-xs font-medium text-dex-tx3 uppercase tracking-wider">
+          {config.label}
+        </span>
+      </div>
+
+      {/* Value */}
+      <div
+        className={`font-mono font-bold ${valueColor} ${
+          config.isHero ? "text-3xl lg:text-4xl" : "text-xl lg:text-2xl"
+        }`}
+      >
+        {formattedValue}
+      </div>
+
+      {/* Subtitle hint */}
+      {config.isHero && (
+        <div className="mt-2 text-xs text-dex-tx3">
+          {config.key === "cap_rate"
+            ? "NOI ÷ Purchase Price"
+            : "Annual Cashflow ÷ Down Payment"}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ──────────────────────────────────────────────────────────────
+// OutputPanel Component
+// ──────────────────────────────────────────────────────────────
+export function OutputPanel({ result, isLoading, error }: OutputPanelProps) {
+  return (
+    <div className="h-full flex flex-col">
+      {/* Panel Header */}
+      <div className="flex items-center gap-3 mb-6">
+        <div className="w-2.5 h-2.5 rounded-full bg-dex-indigo animate-pulse-glow" />
+        <h2 className="text-sm font-mono font-semibold tracking-widest uppercase text-dex-tx2">
+          Financial Analysis
+        </h2>
+      </div>
+
+      {/* Content */}
+      {error ? (
+        <ErrorState message={error} />
+      ) : isLoading ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {METRIC_CARDS.map((card) => (
+            <SkeletonCard key={card.key} isHero={card.isHero} />
+          ))}
+        </div>
+      ) : result ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {METRIC_CARDS.map((card, index) => (
+            <MetricCard
+              key={card.key}
+              config={card}
+              value={result[card.key]}
+              delay={index}
+            />
+          ))}
+        </div>
+      ) : (
+        <EmptyState />
+      )}
+    </div>
+  );
+}
+</file>
+
+<file path="frontend/lib/api.ts">
+// ──────────────────────────────────────────────────────────────
+// POC 79 — Real Estate Cashflow Model
+// API Utility — Typed fetch for POST /api/calculate
+// ──────────────────────────────────────────────────────────────
+
+import type { PropertyInput, CashflowResult, ApiErrorResponse } from "@/types";
+
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_BASE_URL || "http://127.0.0.1:8000";
+
+/**
+ * Sends property assumptions to the backend and returns computed
+ * financial metrics. Throws a descriptive Error on failure.
+ */
+export async function calculateCashflow(
+  input: PropertyInput
+): Promise<CashflowResult> {
+  const url = `${API_BASE_URL}/api/calculate`;
+
+  let response: Response;
+
+  try {
+    response = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(input),
+    });
+  } catch (networkError: unknown) {
+    const message =
+      networkError instanceof Error
+        ? networkError.message
+        : "Unknown network error";
+    throw new Error(
+      `Network error — could not reach the backend at ${url}. ${message}`
+    );
+  }
+
+  if (!response.ok) {
+    let detail = `HTTP ${response.status}`;
+    try {
+      const errorBody: ApiErrorResponse = await response.json();
+      detail = errorBody.detail || detail;
+    } catch {
+      // Response body was not JSON — keep the status code message
+    }
+    throw new Error(`API error: ${detail}`);
+  }
+
+  const data: CashflowResult = await response.json();
+  return data;
+}
+</file>
+
+<file path="frontend/types.ts">
+// ──────────────────────────────────────────────────────────────
+// POC 79 — Real Estate Cashflow Model
+// TypeScript Interfaces (mirrors FastAPI Pydantic models)
+// ──────────────────────────────────────────────────────────────
+
+/**
+ * Input payload sent to POST /api/calculate.
+ * All monetary values are in USD. Percentages are whole numbers (e.g. 20 = 20%).
+ */
+export interface PropertyInput {
+  purchase_price: number;
+  down_payment_percent: number;
+  interest_rate: number;
+  gross_monthly_rent: number;
+  monthly_operating_expenses: number;
+}
+
+/**
+ * Computed financial metrics returned by the backend.
+ * Monetary values are in USD. Rates are percentages.
+ */
+export interface CashflowResult {
+  net_operating_income_annual: number;
+  monthly_mortgage_payment: number;
+  monthly_cashflow: number;
+  cap_rate: number;
+  cash_on_cash_return: number;
+}
+
+/**
+ * Structured error response from the API.
+ */
+export interface ApiErrorResponse {
+  detail: string;
+}
+</file>
+
+<file path="frontend/app/globals.css">
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html,
+  body {
+    @apply h-full antialiased;
+    background-color: #030712;
+    color: #F1F5F9;
+  }
+
+  * {
+    @apply box-border;
+  }
+
+  /* Custom focus ring for inputs */
+  input[type="number"]:focus {
+    outline: none;
+    border-color: #38BDF8;
+    box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2);
+  }
+
+  /* Remove spinner arrows from number inputs */
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  input[type="number"] {
+    -moz-appearance: textfield;
+  }
+}
+
+/* Glassmorphism - Liquid Glass */
+.glass {
+  @apply backdrop-blur-2xl shadow-2xl transition-all duration-300;
+  background-color: rgba(11, 17, 23, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  -webkit-backdrop-filter: blur(24px) saturate(190%);
+  backdrop-filter: blur(24px) saturate(190%);
+}
+
+/* Elevated glass card */
+.glass-card {
+  @apply backdrop-blur-xl shadow-xl transition-all duration-300;
+  background-color: rgba(11, 17, 23, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  -webkit-backdrop-filter: blur(16px) saturate(170%);
+  backdrop-filter: blur(16px) saturate(170%);
+}
+
+.glass-card:hover {
+  border-color: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+/* Custom glow element */
+.liquid-glow {
+  box-shadow: 0 0 25px rgba(56, 189, 248, 0.25), inset 0 0 12px rgba(255, 255, 255, 0.05);
+}
+
+/* Cyan glow on active */
+.glow-active {
+  @apply border;
+  border-color: #38BDF8;
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.5);
+}
+
+/* Profit glow */
+.glow-profit {
+  box-shadow: 0 0 20px rgba(52, 211, 153, 0.3), inset 0 0 8px rgba(52, 211, 153, 0.05);
+}
+
+/* Loss glow */
+.glow-loss {
+  box-shadow: 0 0 20px rgba(251, 113, 133, 0.3), inset 0 0 8px rgba(251, 113, 133, 0.05);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1F2937;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #38BDF8;
+}
+
+/* Animations */
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 8px rgba(56, 189, 248, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 16px rgba(56, 189, 248, 0.6);
+  }
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes slide-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slide-in {
+  animation: slide-in 0.4s ease-out forwards;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.6s ease-out forwards;
+}
+
+/* Staggered animation delays for metric cards */
+.delay-1 { animation-delay: 0.05s; }
+.delay-2 { animation-delay: 0.1s; }
+.delay-3 { animation-delay: 0.15s; }
+.delay-4 { animation-delay: 0.2s; }
+.delay-5 { animation-delay: 0.25s; }
+
+/* Skeleton loader shimmer */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.skeleton {
+  background: linear-gradient(90deg, #1F2937 25%, #374151 50%, #1F2937 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+  border-radius: 6px;
+}
+</file>
+
+<file path="frontend/app/layout.tsx">
+import type { Metadata } from "next";
+import "./globals.css";
+
+export const metadata: Metadata = {
+  title: "POC 79 — Real Estate Cashflow Model",
+  description:
+    "Intelligence Library — Property investment cashflow analysis dashboard",
+};
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <html lang="en">
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link
+          rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossOrigin="anonymous"
+        />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
+          rel="stylesheet"
+        />
+      </head>
+      <body className="font-sans bg-dex-bg text-dex-tx min-h-screen">
+        {children}
+      </body>
+    </html>
+  );
+}
+</file>
+
+<file path="frontend/app/page.tsx">
+"use client";
+
+import { useState } from "react";
+import type { PropertyInput, CashflowResult } from "@/types";
+import { calculateCashflow } from "@/lib/api";
+import { InputPanel } from "@/components/InputPanel";
+import { OutputPanel } from "@/components/OutputPanel";
+
+// ──────────────────────────────────────────────────────────────
+// Default property assumptions — pre-populated so the user
+// never starts with a blank screen
+// ──────────────────────────────────────────────────────────────
+const DEFAULT_INPUT: PropertyInput = {
+  purchase_price: 300000,
+  down_payment_percent: 20,
+  interest_rate: 6.5,
+  gross_monthly_rent: 2500,
+  monthly_operating_expenses: 800,
+};
+
+// ──────────────────────────────────────────────────────────────
+// Dashboard Page
+// ──────────────────────────────────────────────────────────────
+export default function DashboardPage() {
+  const [input, setInput] = useState<PropertyInput>(DEFAULT_INPUT);
+  const [result, setResult] = useState<CashflowResult | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleFieldChange = (
+    field: keyof PropertyInput,
+    value: number
+  ): void => {
+    setInput((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleCalculate = async (): Promise<void> => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const data = await calculateCashflow(input);
+      setResult(data);
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error ? err.message : "An unexpected error occurred.";
+      setError(message);
+      setResult(null);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-dex-bg flex flex-col">
+      {/* ─── Top Bar ─── */}
+      <header className="glass border-b border-dex-border sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+          {/* Branding */}
+          <div className="flex items-center gap-3">
+            <div className="w-3 h-3 rounded-full bg-dex-cyan animate-pulse-glow" />
+            <h1 className="font-mono font-bold text-sm tracking-widest uppercase text-dex-tx">
+              Real Estate Cashflow Model
+            </h1>
+          </div>
+
+          {/* Status Pill */}
+          <div className="hidden sm:flex items-center gap-4 text-xs font-mono text-dex-tx3">
+            <span>
+              POC&nbsp;
+              <span className="text-dex-cyan font-semibold">79</span>
+            </span>
+            <span className="w-px h-4 bg-dex-border" />
+            <span>
+              SYSTEM&nbsp;
+              <span className="text-profit font-semibold">ONLINE</span>
+            </span>
+          </div>
+        </div>
+      </header>
+
+      {/* ─── Main Content ─── */}
+      <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 lg:py-10">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 h-full">
+          {/* Input Panel — Left (4 columns on large screens) */}
+          <div className="lg:col-span-4">
+            <InputPanel
+              values={input}
+              onChange={handleFieldChange}
+              onSubmit={handleCalculate}
+              isLoading={isLoading}
+            />
+          </div>
+
+          {/* Output Panel — Right (8 columns on large screens) */}
+          <div className="lg:col-span-8">
+            <OutputPanel
+              result={result}
+              isLoading={isLoading}
+              error={error}
+            />
+          </div>
+        </div>
+      </main>
+
+      {/* ─── Footer ─── */}
+      <footer className="border-t border-dex-border py-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between text-xs font-mono text-dex-tx3">
+          <span>Intelligence Library</span>
+          <span>
+            Backend{" "}
+            <span className="text-dex-cyan">127.0.0.1:8000</span>
+          </span>
+        </div>
+      </footer>
+    </div>
+  );
+}
+</file>
+
+<file path="frontend/public/file.svg">
+<svg fill="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><path d="M14.5 13.5V5.41a1 1 0 0 0-.3-.7L9.8.29A1 1 0 0 0 9.08 0H1.5v13.5A2.5 2.5 0 0 0 4 16h8a2.5 2.5 0 0 0 2.5-2.5m-1.5 0v-7H8v-5H3v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1M9.5 5V2.12L12.38 5zM5.13 5h-.62v1.25h2.12V5zm-.62 3h7.12v1.25H4.5zm.62 3h-.62v1.25h7.12V11z" clip-rule="evenodd" fill="#666" fill-rule="evenodd"/></svg>
+</file>
+
+<file path="frontend/public/globe.svg">
+<svg fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><g clip-path="url(#a)"><path fill-rule="evenodd" clip-rule="evenodd" d="M10.27 14.1a6.5 6.5 0 0 0 3.67-3.45q-1.24.21-2.7.34-.31 1.83-.97 3.1M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16m.48-1.52a7 7 0 0 1-.96 0H7.5a4 4 0 0 1-.84-1.32q-.38-.89-.63-2.08a40 40 0 0 0 3.92 0q-.25 1.2-.63 2.08a4 4 0 0 1-.84 1.31zm2.94-4.76q1.66-.15 2.95-.43a7 7 0 0 0 0-2.58q-1.3-.27-2.95-.43a18 18 0 0 1 0 3.44m-1.27-3.54a17 17 0 0 1 0 3.64 39 39 0 0 1-4.3 0 17 17 0 0 1 0-3.64 39 39 0 0 1 4.3 0m1.1-1.17q1.45.13 2.69.34a6.5 6.5 0 0 0-3.67-3.44q.65 1.26.98 3.1M8.48 1.5l.01.02q.41.37.84 1.31.38.89.63 2.08a40 40 0 0 0-3.92 0q.25-1.2.63-2.08a4 4 0 0 1 .85-1.32 7 7 0 0 1 .96 0m-2.75.4a6.5 6.5 0 0 0-3.67 3.44 29 29 0 0 1 2.7-.34q.31-1.83.97-3.1M4.58 6.28q-1.66.16-2.95.43a7 7 0 0 0 0 2.58q1.3.27 2.95.43a18 18 0 0 1 0-3.44m.17 4.71q-1.45-.12-2.69-.34a6.5 6.5 0 0 0 3.67 3.44q-.65-1.27-.98-3.1" fill="#666"/></g><defs><clipPath id="a"><path fill="#fff" d="M0 0h16v16H0z"/></clipPath></defs></svg>
+</file>
+
+<file path="frontend/public/next.svg">
+<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 394 80"><path fill="#000" d="M262 0h68.5v12.7h-27.2v66.6h-13.6V12.7H262V0ZM149 0v12.7H94v20.4h44.3v12.6H94v21h55v12.6H80.5V0h68.7zm34.3 0h-17.8l63.8 79.4h17.9l-32-39.7 32-39.6h-17.9l-23 28.6-23-28.6zm18.3 56.7-9-11-27.1 33.7h17.8l18.3-22.7z"/><path fill="#000" d="M81 79.3 17 0H0v79.3h13.6V17l50.2 62.3H81Zm252.6-.4c-1 0-1.8-.4-2.5-1s-1.1-1.6-1.1-2.6.3-1.8 1-2.5 1.6-1 2.6-1 1.8.3 2.5 1a3.4 3.4 0 0 1 .6 4.3 3.7 3.7 0 0 1-3 1.8zm23.2-33.5h6v23.3c0 2.1-.4 4-1.3 5.5a9.1 9.1 0 0 1-3.8 3.5c-1.6.8-3.5 1.3-5.7 1.3-2 0-3.7-.4-5.3-1s-2.8-1.8-3.7-3.2c-.9-1.3-1.4-3-1.4-5h6c.1.8.3 1.6.7 2.2s1 1.2 1.6 1.5c.7.4 1.5.5 2.4.5 1 0 1.8-.2 2.4-.6a4 4 0 0 0 1.6-1.8c.3-.8.5-1.8.5-3V45.5zm30.9 9.1a4.4 4.4 0 0 0-2-3.3 7.5 7.5 0 0 0-4.3-1.1c-1.3 0-2.4.2-3.3.5-.9.4-1.6 1-2 1.6a3.5 3.5 0 0 0-.3 4c.3.5.7.9 1.3 1.2l1.8 1 2 .5 3.2.8c1.3.3 2.5.7 3.7 1.2a13 13 0 0 1 3.2 1.8 8.1 8.1 0 0 1 3 6.5c0 2-.5 3.7-1.5 5.1a10 10 0 0 1-4.4 3.5c-1.8.8-4.1 1.2-6.8 1.2-2.6 0-4.9-.4-6.8-1.2-2-.8-3.4-2-4.5-3.5a10 10 0 0 1-1.7-5.6h6a5 5 0 0 0 3.5 4.6c1 .4 2.2.6 3.4.6 1.3 0 2.5-.2 3.5-.6 1-.4 1.8-1 2.4-1.7a4 4 0 0 0 .8-2.4c0-.9-.2-1.6-.7-2.2a11 11 0 0 0-2.1-1.4l-3.2-1-3.8-1c-2.8-.7-5-1.7-6.6-3.2a7.2 7.2 0 0 1-2.4-5.7 8 8 0 0 1 1.7-5 10 10 0 0 1 4.3-3.5c2-.8 4-1.2 6.4-1.2 2.3 0 4.4.4 6.2 1.2 1.8.8 3.2 2 4.3 3.4 1 1.4 1.5 3 1.5 5h-5.8z"/></svg>
+</file>
+
+<file path="frontend/public/vercel.svg">
+<svg fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1155 1000"><path d="m577.3 0 577.4 1000H0z" fill="#fff"/></svg>
+</file>
+
+<file path="frontend/public/window.svg">
+<svg fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path fill-rule="evenodd" clip-rule="evenodd" d="M1.5 2.5h13v10a1 1 0 0 1-1 1h-11a1 1 0 0 1-1-1zM0 1h16v11.5a2.5 2.5 0 0 1-2.5 2.5h-11A2.5 2.5 0 0 1 0 12.5zm3.75 4.5a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5M7 4.75a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0m1.75.75a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5" fill="#666"/></svg>
+</file>
+
+<file path="frontend/.gitignore">
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/node_modules
+/.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# testing
+/coverage
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# env files (can opt-in for committing if needed)
+.env*
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+</file>
+
+<file path="frontend/AGENTS.md">
+<!-- BEGIN:nextjs-agent-rules -->
+# This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` before writing any code. Heed deprecation notices.
+<!-- END:nextjs-agent-rules -->
+</file>
+
+<file path="frontend/CLAUDE.md">
+@AGENTS.md
+</file>
+
+<file path="frontend/eslint.config.mjs">
+import { defineConfig, globalIgnores } from "eslint/config";
+import nextVitals from "eslint-config-next/core-web-vitals";
+import nextTs from "eslint-config-next/typescript";
+
+const eslintConfig = defineConfig([
+  ...nextVitals,
+  ...nextTs,
+  // Override default ignores of eslint-config-next.
+  globalIgnores([
+    // Default ignores of eslint-config-next:
+    ".next/**",
+    "out/**",
+    "build/**",
+    "next-env.d.ts",
+  ]),
+]);
+
+export default eslintConfig;
+</file>
+
+<file path="frontend/next.config.ts">
+import type { NextConfig } from "next";
+
+const nextConfig: NextConfig = {
+  /* config options here */
+};
+
+export default nextConfig;
+</file>
+
+<file path="frontend/package.json">
+{
+  "name": "frontend",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint"
+  },
+  "dependencies": {
+    "leaflet": "^1.9.4",
+    "mapbox-gl": "^3.21.0",
+    "maplibre-gl": "^3.6.2",
+    "next": "16.2.1",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
+    "react-leaflet": "^5.0.0",
+    "react-map-gl": "^7.1.9"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/leaflet": "^1.9.21",
+    "@types/mapbox-gl": "^3.4.1",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "autoprefixer": "^10.4.27",
+    "eslint": "^9",
+    "eslint-config-next": "16.2.1",
+    "postcss": "^8.5.8",
+    "tailwindcss": "^3.4.1",
+    "typescript": "^5"
+  }
+}
+</file>
+
+<file path="frontend/postcss.config.js">
+module.exports = {
+  plugins: {
+    tailwindcss: {},
+    autoprefixer: {},
+  },
+}
+</file>
+
+<file path="frontend/postcss.config.mjs">
+const config = {
+  plugins: {
+    "@tailwindcss/postcss": {},
+  },
+};
+
+export default config;
+</file>
+
+<file path="frontend/tailwind.config.js">
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+  content: [
+    "./app/**/*.{js,ts,jsx,tsx}",
+    "./components/**/*.{js,ts,jsx,tsx}",
+  ],
+  theme: {
+    extend: {
+      colors: {
+        dex: {
+          bg: "#030712",
+          surface: "#0B1117",
+          border: "#1F2937",
+          cyan: "#38BDF8",
+          indigo: "#818CF8",
+          tx: "#F1F5F9",
+          tx2: "#94A3B8",
+          tx3: "#475569",
+        },
+        // Financial indicators
+        profit: {
+          DEFAULT: "#34D399",
+          glow: "rgba(52, 211, 153, 0.25)",
+        },
+        loss: {
+          DEFAULT: "#FB7185",
+          glow: "rgba(251, 113, 133, 0.25)",
+        },
+      },
+      fontFamily: {
+        sans: ["Inter", "system-ui", "sans-serif"],
+        mono: ["'JetBrains Mono'", "monospace"],
+      },
+    },
+  },
+  plugins: [],
+};
+</file>
+
+<file path="frontend/tsconfig.json">
+{
+  "compilerOptions": {
+    "target": "ES2017",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "react-jsx",
+    "incremental": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "paths": {
+      "@/*": ["./*"]
+    }
+  },
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts",
+    ".next/dev/types/**/*.ts",
+    "**/*.mts"
+  ],
+  "exclude": ["node_modules"]
+}
+</file>
+
+<file path="main.py">
+from fastapi import FastAPI, Query
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import StreamingResponse
+import pandas as pd
+import numpy as np
+import logging
+import random
+import io
+import uuid
+from datetime import datetime, timedelta
+from typing import List, Optional
+
+# LOGGING
+logging.basicConfig(level=logging.INFO)
+log = logging.getLogger("realrails-trade")
+
+app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# ------------------ SYNTHETIC DATA GENERATOR ------------------
+# We simulate global trade hubs to draw trace flows between them.
+PORTS = [
+    {"name": "Shanghai, CN", "lat": 31.2304, "lng": 121.4737},
+    {"name": "Los Angeles, US", "lat": 34.0522, "lng": -118.2437},
+    {"name": "Rotterdam, NL", "lat": 51.9225, "lng": 4.4791},
+    {"name": "Singapore, SG", "lat": 1.3521, "lng": 103.8198},
+    {"name": "Dubai, AE", "lat": 25.2048, "lng": 55.2708},
+    {"name": "Hamburg, DE", "lat": 53.5511, "lng": 9.9937},
+    {"name": "New York, US", "lat": 40.7128, "lng": -74.0060},
+    {"name": "Mumbai, IN", "lat": 18.9388, "lng": 72.8258},
+]
+
+STATUSES = ["Cleared", "In Transit", "Customs Hold", "OFAC Flagged"]
+SKUS = ["Semiconductors (Tier 1)", "Lithium-Ion Cells", "Medical Devices", "Auto Parts (OEM)", "Raw Textiles"]
+
+def generate_mock_trade_data(num_records=500):
+    log.info(f"⚙️ Generating {num_records} synthetic trade shipments...")
+    data = []
+    
+    for _ in range(num_records):
+        origin = random.choice(PORTS)
+        dest = random.choice([p for p in PORTS if p["name"] != origin["name"]])
+        
+        # Weighted random status (Mostly fine, some flagged)
+        status = random.choices(STATUSES, weights=[0.5, 0.3, 0.1, 0.1])[0]
+        
+        shipment = {
+            "shipment_id": f"TRC-{str(uuid.uuid4())[:8].upper()}",
+            "sku": random.choice(SKUS),
+            "origin_name": origin["name"],
+            "origin_lat": origin["lat"] + random.uniform(-0.1, 0.1), # Slight variance for visual spread
+            "origin_lng": origin["lng"] + random.uniform(-0.1, 0.1),
+            "dest_name": dest["name"],
+            "dest_lat": dest["lat"] + random.uniform(-0.1, 0.1),
+            "dest_lng": dest["lng"] + random.uniform(-0.1, 0.1),
+            "status": status,
+            "value_usd": round(random.uniform(15000, 2500000), 2),
+            "last_checkpoint": (datetime.now() - timedelta(days=random.randint(0, 14))).strftime("%Y-%m-%d"),
+            "documents_attached": random.choice(["Bill of Lading, Commercial Invoice", "Export License, Bill of Lading", "Missing Documentation"])
+        }
+        data.append(shipment)
+        
+    return pd.DataFrame(data)
+
+# Initialize data in memory
+STORE_DF = generate_mock_trade_data(800)
+
+# ------------------ API ENDPOINTS ------------------
+
+@app.get("/api/metrics")
+def get_metrics():
+    """Returns high-level insights for the sidebar."""
+    total = len(STORE_DF)
+    flagged = len(STORE_DF[STORE_DF["status"].isin(["Customs Hold", "OFAC Flagged"])])
+    total_value = STORE_DF["value_usd"].sum()
+    
+    return {
+        "total_shipments": total,
+        "flagged_shipments": flagged,
+        "compliance_rate": round(((total - flagged) / total) * 100, 1),
+        "total_value_usd": float(total_value)
+    }
+
+@app.get("/api/shipments")
+def get_shipments(status: Optional[str] = Query(None)):
+    """Returns shipments formatted for MapLibre trace lines and points."""
+    df = STORE_DF.copy()
+    
+    if status and status != "ALL":
+        df = df[df["status"] == status]
+        
+    features = []
+    
+    for _, row in df.iterrows():
+        # Feature 1: The Origin Point
+        features.append({
+            "type": "Feature",
+            "properties": {
+                "shipment_id": row["shipment_id"],
+                "type": "origin",
+                "sku": row["sku"],
+                "status": row["status"],
+                "location": row["origin_name"]
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [row["origin_lng"], row["origin_lat"]]
+            }
+        })
+        
+        # Feature 2: The Destination Point
+        features.append({
+            "type": "Feature",
+            "properties": {
+                "shipment_id": row["shipment_id"],
+                "type": "destination",
+                "status": row["status"],
+                "location": row["dest_name"]
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [row["dest_lng"], row["dest_lat"]]
+            }
+        })
+        
+        # Feature 3: The Trace Line connecting them
+        features.append({
+            "type": "Feature",
+            "properties": {
+                "shipment_id": row["shipment_id"],
+                "type": "trace_line",
+                "status": row["status"],
+                "value": row["value_usd"]
+            },
+            "geometry": {
+                "type": "LineString",
+                "coordinates": [
+                    [row["origin_lng"], row["origin_lat"]],
+                    [row["dest_lng"], row["dest_lat"]]
+                ]
+            }
+        })
+
+    return {"type": "FeatureCollection", "features": features, "total": len(df)}
+
+@app.get("/api/filters/statuses")
+def get_statuses():
+    """Returns available status filters."""
+    return [{"status_id": s, "status_name": s} for s in STATUSES]
+
+@app.get("/api/shipments/csv")
+def download_csv():
+    """Download synthetic trace data."""
+    csv_data = STORE_DF.to_csv(index=False)
+    return StreamingResponse(io.StringIO(csv_data), media_type="text/csv", headers={"Content-Disposition": "attachment; filename=trade_compliance_trace.csv"})
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000, reload=True)
+</file>
+
+<file path="README.md">
+# POC-79-RealEstateCashflowModel-Adil
+</file>
+
+<file path="requirements.txt">
+annotated-doc==0.0.4
+annotated-types==0.7.0
+anyio==4.13.0
+certifi==2026.2.25
+charset-normalizer==3.4.6
+click==8.3.1
+colorama==0.4.6
+fastapi==0.135.2
+h11==0.16.0
+httpcore==1.0.9
+httpx==0.28.1
+idna==3.11
+numpy==2.4.3
+pandas==3.0.1
+pydantic==2.12.5
+pydantic_core==2.41.5
+python-dateutil==2.9.0.post0
+python-dotenv==1.2.2
+requests==2.33.0
+six==1.17.0
+starlette==1.0.0
+typing-inspection==0.4.2
+typing_extensions==4.15.0
+tzdata==2025.3
+urllib3==2.6.3
+uvicorn==0.42.0
+</file>
+
+</files>

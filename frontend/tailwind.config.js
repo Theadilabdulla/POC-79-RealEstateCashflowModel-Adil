@@ -17,10 +17,19 @@ module.exports = {
           tx2: "#94A3B8",
           tx3: "#475569",
         },
+        // Financial indicators
+        profit: {
+          DEFAULT: "#34D399",
+          glow: "rgba(52, 211, 153, 0.25)",
+        },
+        loss: {
+          DEFAULT: "#FB7185",
+          glow: "rgba(251, 113, 133, 0.25)",
+        },
       },
       fontFamily: {
-        sans: ["system-ui", "sans-serif"],
-        mono: ["monospace"],
+        sans: ["Inter", "system-ui", "sans-serif"],
+        mono: ["'JetBrains Mono'", "monospace"],
       },
     },
   },
