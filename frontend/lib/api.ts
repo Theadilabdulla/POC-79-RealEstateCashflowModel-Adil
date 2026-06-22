@@ -1,51 +1,129 @@
-// ──────────────────────────────────────────────────────────────
-// POC 79 — Real Estate Cashflow Model
-// API Utility — Typed fetch for POST /api/calculate
-// ──────────────────────────────────────────────────────────────
+import type {
+  PropertyInput,
+  CashflowResult,
+  PropertySummary,
+  PropertyDetail,
+  NOIBridgeItem,
+  DebtServiceResponse,
+  CashDistributionRow,
+  ScenarioInput,
+  MarketData,
+  ApiErrorResponse,
+} from "@/types";
 
-import type { PropertyInput, CashflowResult, ApiErrorResponse } from "@/types";
+// ─── Base URL ───────────────────────────────────────────────────────────────
 
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL || "http://127.0.0.1:8000";
 
-/**
- * Sends property assumptions to the backend and returns computed
- * financial metrics. Throws a descriptive Error on failure.
- */
+// ─── Generic Fetch Wrapper ──────────────────────────────────────────────────
+
+async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
+  const url = `${API_BASE_URL}${path}`;
+
+  const response = await fetch(url, {
+    headers: {
+      "Content-Type": "application/json",
+      ...(options?.headers as Record<string, string> | undefined),
+    },
+    ...options,
+  });
+
+  if (!response.ok) {
+    let message = `Request failed: ${response.status} ${response.statusText}`;
+
+    try {
+      const errorBody: ApiErrorResponse = await response.json();
+      if (errorBody.detail) {
+        message = errorBody.detail;
+      }
+    } catch {
+      // response body was not JSON — keep the default message
+    }
+
+    throw new Error(message);
+  }
+
+  const data: T = await response.json();
+  return data;
+}
+
+// ─── Cashflow Calculator (existing) ─────────────────────────────────────────
+
 export async function calculateCashflow(
   input: PropertyInput
 ): Promise<CashflowResult> {
-  const url = `${API_BASE_URL}/api/calculate`;
+  return apiFetch<CashflowResult>("/calculate", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
 
-  let response: Response;
+// ─── Portfolio ──────────────────────────────────────────────────────────────
 
-  try {
-    response = await fetch(url, {
+export async function fetchPortfolio(): Promise<PropertySummary[]> {
+  return apiFetch<PropertySummary[]>("/portfolio");
+}
+
+// ─── Property Detail ────────────────────────────────────────────────────────
+
+export async function fetchPropertyDetail(
+  id: string
+): Promise<PropertyDetail> {
+  return apiFetch<PropertyDetail>(`/portfolio/${encodeURIComponent(id)}`);
+}
+
+// ─── NOI Bridge (Waterfall) ─────────────────────────────────────────────────
+
+export async function fetchNOIBridge(id: string): Promise<NOIBridgeItem[]> {
+  return apiFetch<NOIBridgeItem[]>(
+    `/portfolio/${encodeURIComponent(id)}/noi-bridge`
+  );
+}
+
+// ─── Debt Service Schedule ──────────────────────────────────────────────────
+
+export async function fetchDebtService(
+  id: string
+): Promise<DebtServiceResponse> {
+  return apiFetch<DebtServiceResponse>(
+    `/portfolio/${encodeURIComponent(id)}/debt-service`
+  );
+}
+
+// ─── Cash Distribution Waterfall ────────────────────────────────────────────
+
+export async function fetchCashDistribution(
+  id: string
+): Promise<CashDistributionRow[]> {
+  return apiFetch<CashDistributionRow[]>(
+    `/portfolio/${encodeURIComponent(id)}/cash-distribution`
+  );
+}
+
+// ─── Scenario Analysis ─────────────────────────────────────────────────────
+
+export async function runScenario(
+  id: string,
+  scenario: ScenarioInput
+): Promise<PropertyDetail> {
+  return apiFetch<PropertyDetail>(
+    `/portfolio/${encodeURIComponent(id)}/scenario`,
+    {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(input),
-    });
-  } catch (networkError: unknown) {
-    const message =
-      networkError instanceof Error
-        ? networkError.message
-        : "Unknown network error";
-    throw new Error(
-      `Network error — could not reach the backend at ${url}. ${message}`
-    );
-  }
-
-  if (!response.ok) {
-    let detail = `HTTP ${response.status}`;
-    try {
-      const errorBody: ApiErrorResponse = await response.json();
-      detail = errorBody.detail || detail;
-    } catch {
-      // Response body was not JSON — keep the status code message
+      body: JSON.stringify(scenario),
     }
-    throw new Error(`API error: ${detail}`);
-  }
+  );
+}
 
-  const data: CashflowResult = await response.json();
-  return data;
+// ─── Market Data ────────────────────────────────────────────────────────────
+
+export async function fetchMarketData(): Promise<MarketData> {
+  return apiFetch<MarketData>("/market-data");
+}
+
+// ─── CSV Download URL ───────────────────────────────────────────────────────
+
+export function getDownloadUrl(): string {
+  return `${API_BASE_URL}/portfolio/download`;
 }
