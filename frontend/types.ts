@@ -75,9 +75,9 @@ export interface PropertyDetail {
   cap_rate: number;
   cash_on_cash: number;
   monthly_cashflow: number;
-  noi_annual: number;
+  noi: number;
+  loan_amount: number;
   monthly_mortgage: number;
-  dscr: number;
   lease_roll: LeaseEntry[];
   expenses: ExpenseBreakdown;
 }

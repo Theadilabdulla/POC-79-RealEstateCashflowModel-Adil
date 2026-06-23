@@ -7,36 +7,39 @@ export function NOIBridge({ data }: { data: NOIBridgeItem[] }) {
   if (!data || data.length === 0) return null;
 
   // Transform data for the waterfall chart
-  let runningTotal = 0;
-  
-  const chartData = data.map((item) => {
-    let start = 0;
-    let end = 0;
-    let color = "";
+  const chartData = data.reduce<{ result: Array<{ name: string; start: number; end: number; value: number; type: string; color: string; range: number[] }>; total: number }>(
+    (acc, item) => {
+      let start = 0;
+      let end = 0;
+      let color = "";
+      let newTotal = acc.total;
 
-    if (item.type === "income" || item.type === "subtotal") {
-      start = 0;
-      end = item.value;
-      runningTotal = item.value;
-      color = "#34D399"; // profit (green)
-    } else if (item.type === "deduction") {
-      start = runningTotal;
-      end = runningTotal - Math.abs(item.value);
-      runningTotal = end;
-      color = "#FB7185"; // loss (red)
-    }
+      if (item.type === "income" || item.type === "subtotal") {
+        start = 0;
+        end = item.value;
+        newTotal = item.value;
+        color = "#34D399"; // profit (green)
+      } else if (item.type === "deduction") {
+        start = acc.total;
+        end = acc.total - Math.abs(item.value);
+        newTotal = end;
+        color = "#FB7185"; // loss (red)
+      }
 
-    return {
-      name: item.label,
-      start,
-      end,
-      value: item.value,
-      type: item.type,
-      color,
-      // For Recharts to draw floating bars, we need an array [min, max]
-      range: [Math.min(start, end), Math.max(start, end)],
-    };
-  });
+      acc.result.push({
+        name: item.label,
+        start,
+        end,
+        value: item.value,
+        type: item.type,
+        color,
+        range: [Math.min(start, end), Math.max(start, end)],
+      });
+
+      return { result: acc.result, total: newTotal };
+    },
+    { result: [], total: 0 }
+  ).result;
 
   const formatCurrency = (val: number) => 
     new Intl.NumberFormat("en-US", {

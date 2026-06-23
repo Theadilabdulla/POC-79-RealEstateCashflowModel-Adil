@@ -14,7 +14,7 @@ import type {
 // ─── Base URL ───────────────────────────────────────────────────────────────
 
 const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL || "http://127.0.0.1:8000";
+  process.env.NEXT_PUBLIC_API_BASE_URL || "http://127.0.0.1:8000/api";
 
 // ─── Generic Fetch Wrapper ──────────────────────────────────────────────────
 
@@ -70,14 +70,14 @@ export async function fetchPortfolio(): Promise<PropertySummary[]> {
 export async function fetchPropertyDetail(
   id: string
 ): Promise<PropertyDetail> {
-  return apiFetch<PropertyDetail>(`/portfolio/${encodeURIComponent(id)}`);
+  return apiFetch<PropertyDetail>(`/property/${encodeURIComponent(id)}`);
 }
 
 // ─── NOI Bridge (Waterfall) ─────────────────────────────────────────────────
 
 export async function fetchNOIBridge(id: string): Promise<NOIBridgeItem[]> {
   return apiFetch<NOIBridgeItem[]>(
-    `/portfolio/${encodeURIComponent(id)}/noi-bridge`
+    `/property/${encodeURIComponent(id)}/noi-bridge`
   );
 }
 
@@ -87,7 +87,7 @@ export async function fetchDebtService(
   id: string
 ): Promise<DebtServiceResponse> {
   return apiFetch<DebtServiceResponse>(
-    `/portfolio/${encodeURIComponent(id)}/debt-service`
+    `/property/${encodeURIComponent(id)}/debt-service`
   );
 }
 
@@ -97,7 +97,7 @@ export async function fetchCashDistribution(
   id: string
 ): Promise<CashDistributionRow[]> {
   return apiFetch<CashDistributionRow[]>(
-    `/portfolio/${encodeURIComponent(id)}/cash-distribution`
+    `/property/${encodeURIComponent(id)}/cash-distribution`
   );
 }
 
@@ -108,7 +108,7 @@ export async function runScenario(
   scenario: ScenarioInput
 ): Promise<PropertyDetail> {
   return apiFetch<PropertyDetail>(
-    `/portfolio/${encodeURIComponent(id)}/scenario`,
+    `/property/${encodeURIComponent(id)}/scenario`,
     {
       method: "POST",
       body: JSON.stringify(scenario),
@@ -125,5 +125,5 @@ export async function fetchMarketData(): Promise<MarketData> {
 // ─── CSV Download URL ───────────────────────────────────────────────────────
 
 export function getDownloadUrl(): string {
-  return `${API_BASE_URL}/portfolio/download`;
+  return `${API_BASE_URL}/download/sample-data`;
 }

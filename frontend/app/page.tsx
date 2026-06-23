@@ -62,8 +62,9 @@ export default function DashboardPage() {
         } else {
           setIsLoading(false);
         }
-      } catch (err: any) {
-        setError(err.message || "Failed to load initial data");
+      } catch (err) {
+        const error = err as Error;
+        setError(error.message || "Failed to load initial data");
         setIsLoading(false);
       }
     }
@@ -85,8 +86,9 @@ export default function DashboardPage() {
       setNoiBridge(bridge);
       setDebtService(debt);
       setCashDistribution(cash);
-    } catch (err: any) {
-      setError(err.message || "Failed to load property data");
+    } catch (err) {
+      const error = err as Error;
+      setError(error.message || "Failed to load property data");
     } finally {
       setIsLoading(false);
     }
@@ -103,15 +105,16 @@ export default function DashboardPage() {
       // Note: for a fully reactive dashboard, we would also need scenario endpoints for the bridge/debt/cash
       // but for this MVP, updating the detail view shows the core metrics change.
       // We can just rely on the updated propertyDetail for the top-line changes.
-    } catch (err: any) {
-      setError(err.message || "Failed to run scenario");
+    } catch (err) {
+      const error = err as Error;
+      setError(error.message || "Failed to run scenario");
     } finally {
       setIsScenarioLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-dex-bg flex flex-col">
+    <div className="min-h-screen bg-dex-surface flex flex-col">
       {/* ─── Top Bar ─── */}
       <header className="glass border-b border-dex-border sticky top-0 z-50">
         <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
@@ -169,24 +172,28 @@ export default function DashboardPage() {
               <div className="lg:col-span-3">
                 <ScenarioToggles onApply={handleApplyScenario} isLoading={isScenarioLoading} />
               </div>
-              <div className="lg:col-span-5">
-                <NOIBridge data={noiBridge} />
-              </div>
-              <div className="lg:col-span-4">
-                <CashDistribution data={cashDistribution} />
+              <div className="lg:col-span-9 grid grid-cols-1 lg:grid-cols-10 gap-6 lg:gap-8">
+                <div className="lg:col-span-7">
+                  <NOIBridge data={noiBridge} />
+                </div>
+                <div className="lg:col-span-3">
+                  <CashDistribution data={cashDistribution} />
+                </div>
               </div>
             </div>
 
             {/* Row 3: Debt + Editorial */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
-              <div className="lg:col-span-6">
-                <DebtService data={debtService} />
-              </div>
               <div className="lg:col-span-3">
                 <WhyThisMatters />
               </div>
-              <div className="lg:col-span-3">
-                <WhoControlsTheRail />
+              <div className="lg:col-span-9 grid grid-cols-1 lg:grid-cols-10 gap-6 lg:gap-8">
+                <div className="lg:col-span-7">
+                  <DebtService data={debtService} />
+                </div>
+                <div className="lg:col-span-3">
+                  <WhoControlsTheRail />
+                </div>
               </div>
             </div>
 
