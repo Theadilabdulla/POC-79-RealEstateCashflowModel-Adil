@@ -1,6 +1,7 @@
 "use client";
 
 import type { CashDistributionRow } from "@/types";
+import React from "react";
 
 export function CashDistribution({ data }: { data: CashDistributionRow[] | null }) {
   if (!data || data.length === 0) return null;
@@ -22,40 +23,40 @@ export function CashDistribution({ data }: { data: CashDistributionRow[] | null 
       </div>
 
       <div className="flex-1 rounded-xl border border-dex-border bg-dex-bg/30 p-4">
-        <div className="space-y-4">
+        <div className="grid grid-cols-[1fr_auto_auto] gap-x-3 items-center">
           {data.map((row, idx) => {
             const isLast = idx === data.length - 1;
             const isNegative = row.amount < 0;
             const isIncome = !isNegative && idx === 0; // First row is NOI
 
             return (
-              <div key={row.label}>
-                <div className="flex items-center justify-between mb-1 gap-2">
-                  <span className={`text-sm min-w-0 flex-1 break-words ${isLast ? "font-semibold text-dex-tx uppercase tracking-wider" : "text-dex-tx2"}`}>
-                    {row.label}
-                  </span>
-                  <div className="flex items-center gap-2 sm:gap-4 shrink-0">
-                    <span className="text-[10px] font-mono text-dex-tx3 w-10 sm:w-12 text-right">
-                      {row.percent_of_gross.toFixed(1)}%
-                    </span>
-                    <span className={`font-mono text-sm font-semibold w-24 sm:w-28 text-right whitespace-nowrap ${
-                      isIncome ? "text-dex-tx" : isLast ? (row.amount >= 0 ? "text-profit glow-profit" : "text-loss glow-loss") : "text-loss"
-                    }`}>
-                      {isNegative ? "-" : ""}{formatCurrency(row.amount)}
-                    </span>
-                  </div>
+              <React.Fragment key={row.label}>
+                <div className={`text-sm py-1.5 pr-2 ${isLast ? "font-semibold text-dex-tx uppercase tracking-wider" : "text-dex-tx2"}`}>
+                  {row.label}
+                </div>
+                
+                <div className="text-[10px] font-mono text-dex-tx3 text-right py-1.5">
+                  {row.percent_of_gross.toFixed(1)}%
+                </div>
+                
+                <div className={`font-mono text-sm font-semibold text-right whitespace-nowrap py-1.5 ${
+                  isIncome ? "text-dex-tx" : isLast ? (row.amount >= 0 ? "text-profit glow-profit" : "text-loss glow-loss") : "text-loss"
+                }`}>
+                  {isNegative ? "-" : ""}{formatCurrency(row.amount)}
                 </div>
 
                 {!isLast && idx < data.length - 2 && (
-                  <div className="flex justify-end mt-2 mb-2">
-                    <div className="w-24 h-px bg-dex-border/50" />
+                  <div className="col-span-3 flex justify-end">
+                    <div className="w-24 h-px bg-dex-border/50 my-1" />
                   </div>
                 )}
                 
                 {idx === data.length - 2 && (
-                  <div className="my-3 border-t border-dex-border border-dashed" />
+                  <div className="col-span-3">
+                    <div className="my-2 border-t border-dex-border border-dashed" />
+                  </div>
                 )}
-              </div>
+              </React.Fragment>
             );
           })}
         </div>
