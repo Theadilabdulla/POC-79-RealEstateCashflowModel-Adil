@@ -30,15 +30,15 @@ export function CashDistribution({ data }: { data: CashDistributionRow[] | null 
 
             return (
               <div key={row.label}>
-                <div className="flex items-center justify-between mb-1">
-                  <span className={`text-sm ${isLast ? "font-semibold text-dex-tx uppercase tracking-wider" : "text-dex-tx2"}`}>
+                <div className="flex items-center justify-between mb-1 gap-2">
+                  <span className={`text-sm min-w-0 flex-1 break-words ${isLast ? "font-semibold text-dex-tx uppercase tracking-wider" : "text-dex-tx2"}`}>
                     {row.label}
                   </span>
-                  <div className="flex items-center gap-4">
-                    <span className="text-[10px] font-mono text-dex-tx3 w-12 text-right">
+                  <div className="flex items-center gap-2 sm:gap-4 shrink-0">
+                    <span className="text-[10px] font-mono text-dex-tx3 w-10 sm:w-12 text-right">
                       {row.percent_of_gross.toFixed(1)}%
                     </span>
-                    <span className={`font-mono text-sm font-semibold w-24 text-right ${
+                    <span className={`font-mono text-sm font-semibold w-24 sm:w-28 text-right whitespace-nowrap ${
                       isIncome ? "text-dex-tx" : isLast ? (row.amount >= 0 ? "text-profit glow-profit" : "text-loss glow-loss") : "text-loss"
                     }`}>
                       {isNegative ? "-" : ""}{formatCurrency(row.amount)}
