@@ -2,12 +2,26 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ─── DNA Palette Custom Properties ─── */
+:root {
+  --dna-surface: #0B1117;
+  --dna-indigo:  #818CF8;
+  --dna-cyan:    #38BDF8;
+  --dna-bg:      #030712;
+  --dna-border:  #1F2937;
+  --dna-tx:      #F1F5F9;
+  --dna-tx2:     #94A3B8;
+  --dna-tx3:     #475569;
+  --dna-profit:  #34D399;
+  --dna-loss:    #FB7185;
+}
+
 @layer base {
   html,
   body {
     @apply h-full antialiased;
-    background-color: #030712;
-    color: #F1F5F9;
+    background-color: var(--dna-bg);
+    color: var(--dna-tx);
   }
 
   * {
@@ -32,22 +46,33 @@
   }
 }
 
-/* Glassmorphism - Liquid Glass */
+/* Glassmorphism - Liquid Glass (DNA surface: #0B1117) */
 .glass {
   @apply backdrop-blur-2xl shadow-2xl transition-all duration-300;
-  background-color: rgba(11, 17, 23, 0.55);
+  background-color: rgba(11, 17, 23, 0.55); /* --dna-surface at 55% */
   border: 1px solid rgba(255, 255, 255, 0.08);
   -webkit-backdrop-filter: blur(24px) saturate(190%);
   backdrop-filter: blur(24px) saturate(190%);
 }
 
-/* Elevated glass card */
+/* Elevated glass card (DNA surface: #0B1117) */
 .glass-card {
   @apply backdrop-blur-xl shadow-xl transition-all duration-300;
-  background-color: rgba(11, 17, 23, 0.65);
+  background-color: rgba(11, 17, 23, 0.65); /* --dna-surface at 65% */
   border: 1px solid rgba(255, 255, 255, 0.06);
   -webkit-backdrop-filter: blur(16px) saturate(170%);
   backdrop-filter: blur(16px) saturate(170%);
+}
+
+/* DNA indigo accent utility */
+.dna-indigo-glow {
+  box-shadow: 0 0 20px rgba(129, 140, 248, 0.3), inset 0 0 8px rgba(129, 140, 248, 0.05);
+}
+
+/* DNA sidebar surface */
+.sidebar-surface {
+  background-color: var(--dna-surface); /* #0B1117 */
+  border-left: 1px solid var(--dna-border);
 }
 
 .glass-card:hover {

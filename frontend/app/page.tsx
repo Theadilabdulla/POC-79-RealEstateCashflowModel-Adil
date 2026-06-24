@@ -114,7 +114,7 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="min-h-screen bg-dex-surface flex flex-col">
+    <div className="min-h-screen bg-dex-bg flex flex-col">
       {/* ─── Top Bar ─── */}
       <header className="glass border-b border-dex-border sticky top-0 z-50">
         <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
@@ -132,82 +132,104 @@ export default function DashboardPage() {
         </div>
       </header>
 
-      {/* ─── Main Content ─── */}
-      <main className="flex-1 max-w-[1400px] mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 lg:py-10">
-        {error && (
-          <div className="bg-loss/10 border border-loss text-loss p-4 rounded-xl mb-8 font-mono text-sm">
-            Error: {error}
-          </div>
-        )}
+      {/* ─── Body: strict 70 / 30 split ─── */}
+      <div className="flex flex-1 w-full max-w-[1400px] mx-auto">
 
-        <MarketIndicators data={marketData} />
-        
-        <PropertySelector 
-          properties={portfolio} 
-          selectedId={selectedId} 
-          onSelect={handleSelectProperty} 
-          isLoading={portfolio.length === 0} 
-        />
+        {/* ═══ LEFT — Main Content (70%) ═══ */}
+        <main className="flex-[7] min-w-0 px-4 sm:px-6 py-6 lg:py-8 flex flex-col gap-6">
+          {error && (
+            <div className="bg-loss/10 border border-loss text-loss p-4 rounded-xl font-mono text-sm">
+              Error: {error}
+            </div>
+          )}
 
-        {!isLoading && propertyDetail && (
-          <div className="flex flex-col gap-6 lg:gap-8">
-            
-            {/* Row 1: KPI Output Panel (using existing component adapted for PropertyDetail format) */}
-            <div className="w-full">
-              <OutputPanel 
+          {/* Market ticker */}
+          <MarketIndicators data={marketData} />
+
+          {/* Property selector */}
+          <PropertySelector
+            properties={portfolio}
+            selectedId={selectedId}
+            onSelect={handleSelectProperty}
+            isLoading={portfolio.length === 0}
+          />
+
+          {!isLoading && propertyDetail && (
+            <div className="flex flex-col gap-6">
+
+              {/* KPI strip */}
+              <OutputPanel
                 result={{
                   net_operating_income_annual: propertyDetail.noi,
                   monthly_mortgage_payment: propertyDetail.monthly_mortgage,
                   monthly_cashflow: propertyDetail.monthly_cashflow,
                   cap_rate: propertyDetail.cap_rate,
-                  cash_on_cash_return: propertyDetail.cash_on_cash
-                }} 
-                isLoading={isScenarioLoading} 
-                error={null} 
+                  cash_on_cash_return: propertyDetail.cash_on_cash,
+                }}
+                isLoading={isScenarioLoading}
+                error={null}
               />
-            </div>
 
-            {/* Row 2: Scenario + Bridge + Cash Dist */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
-              <div className="lg:col-span-3">
-                <ScenarioToggles onApply={handleApplyScenario} isLoading={isScenarioLoading} />
-              </div>
-              <div className="lg:col-span-9 grid grid-cols-1 lg:grid-cols-10 gap-6 lg:gap-8">
-                <div className="lg:col-span-7">
+              {/* NOI Bridge + Cash Distribution side-by-side */}
+              <div className="grid grid-cols-1 xl:grid-cols-10 gap-6">
+                <div className="xl:col-span-7">
                   <NOIBridge data={noiBridge} />
                 </div>
-                <div className="lg:col-span-3">
+                <div className="xl:col-span-3">
                   <CashDistribution data={cashDistribution} />
                 </div>
               </div>
-            </div>
 
-            {/* Row 3: Debt + Editorial */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
-              <div className="lg:col-span-3">
-                <WhyThisMatters />
-              </div>
-              <div className="lg:col-span-9 grid grid-cols-1 lg:grid-cols-10 gap-6 lg:gap-8">
-                <div className="lg:col-span-7">
-                  <DebtService data={debtService} />
-                </div>
-                <div className="lg:col-span-3">
-                  <WhoControlsTheRail />
-                </div>
-              </div>
-            </div>
+              {/* Debt Service */}
+              <DebtService data={debtService} />
 
-            {/* Row 4: Lease Roll */}
-            <div className="w-full">
+              {/* Lease Roll */}
               <LeaseRollTable data={propertyDetail.lease_roll} />
             </div>
+          )}
+        </main>
 
+        {/* ═══ RIGHT — Sidebar (30%) ═══ */}
+        <aside
+          className="flex-[3] min-w-[280px] max-w-[420px] sticky top-16 self-start h-[calc(100vh-4rem)] overflow-y-auto flex flex-col gap-5 px-4 py-6"
+          style={{
+            backgroundColor: "var(--dna-surface)",
+            borderLeft: "1px solid rgba(129,140,248,0.25)",
+          }}
+        >
+          {/* Indigo accent line */}
+          <div
+            className="h-0.5 w-full rounded-full"
+            style={{ background: "linear-gradient(90deg, var(--dna-indigo) 0%, transparent 100%)" }}
+          />
+
+          {/* Sidebar header */}
+          <div className="flex items-center gap-2">
+            <div
+              className="w-2 h-2 rounded-full animate-pulse-glow"
+              style={{ backgroundColor: "var(--dna-indigo)" }}
+            />
+            <span
+              className="text-xs font-mono font-semibold tracking-widest uppercase"
+              style={{ color: "var(--dna-indigo)" }}
+            >
+              Controls & Insights
+            </span>
           </div>
-        )}
-      </main>
+
+          {/* Scenario Analysis */}
+          <ScenarioToggles onApply={handleApplyScenario} isLoading={isScenarioLoading} />
+
+          {/* Why This Matters */}
+          <WhyThisMatters />
+
+          {/* Who Controls the Rail */}
+          <WhoControlsTheRail />
+        </aside>
+      </div>
 
       {/* ─── Footer ─── */}
-      <footer className="border-t border-dex-border py-6 mt-8">
+      <footer className="border-t border-dex-border py-6">
         <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between text-xs font-mono text-dex-tx3">
           <span>Intelligence Library</span>
           <div className="flex gap-4 items-center">
